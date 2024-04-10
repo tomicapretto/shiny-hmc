@@ -1,0 +1,16 @@
+<p>Start the algorithm at an initial position <span class="math inline">\boldsymbol{\theta}</span>. For a number of iterations, do:</p>
+<ol type="1">
+<li>Draw a random momentum <span class="math inline">\boldsymbol{v}</span>.</li>
+<li>Evolve the system <span class="math inline">(\boldsymbol{\theta}, \boldsymbol{v})</span> according to Hamilton’s equations using the leapfrog integrator with <span class="math inline">L</span> steps of size <span class="math inline">\varepsilon</span> to get <span class="math inline">(\boldsymbol{\theta}&#39;, \boldsymbol{v}&#39;)</span>.</li>
+<li>Apply the Metropolis acceptance step to determine whether to update to the new status <span class="math inline">(\boldsymbol{\theta}&#39;, \boldsymbol{v}&#39;)</span> or stay on the current one <span class="math inline">(\boldsymbol{\theta}, \boldsymbol{v})</span>.</li>
+</ol>
+<h4 id="resources">Resources</h4>
+<p>The details of the Hamiltonian Monte Carlo algorithm are based on the following resources:</p>
+<ul>
+<li><a href="https://colindcarroll.com/2019/04/11/hamiltonian-monte-carlo-from-scratch/">Hamiltonian Monte Carlo from scratch - Colin Carroll</a></li>
+<li><a href="https://colindcarroll.com/2019/04/21/step-size-adaptation-in-hamiltonian-monte-carlo/">Step Size Adaptation in Hamiltonian Monte Carlo - Colin Carroll</a></li>
+<li><a href="https://colindcarroll.com/2019/04/28/choice-of-symplectic-integrator-in-hamiltonian-monte-carlo/">Choice of Symplectic Integrator in Hamiltonian Monte Carlo - Colin Carroll</a></li>
+<li><a href="https://colcarroll.github.io/mcmc-adapt/">Adaptation in gradient-based Markov chain Monte Carlo - Colin Carroll</a></li>
+<li><a href="https://mc-stan.org/docs/reference-manual/mcmc.html">MCMC Sampling - Stan Reference Manual</a></li>
+<li><a href="https://gregorygundersen.com/blog/2020/07/05/hmc/">Hamiltonian Monte Carlo - Gregory Gundersen</a></li>
+</ul>

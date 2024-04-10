@@ -1,0 +1,18 @@
+<p>The leapfrog integrator is a popular numerical integration algorithm that provides stable results for Hamiltonian systems of equations. It discretizes time using <span class="math inline">L</span> small steps of size <span class="math inline">\varepsilon</span>, resulting in <span class="math inline">L\varepsilon</span> total time.</p>
+<p>The first step in the algorithm is to draw a random momentum <span class="math inline">\boldsymbol{v}</span> independently of the parameter values <span class="math inline">\boldsymbol{\theta}</span> (the position) or previous momentum values.</p>
+<p>Then, it alternates half-step updates of the momentum and full-step updates of the position. It computes a half-step update of the momentum, a full-step update of the position using the new momentum, and finally another half-step update in the momentum using the new position.</p>
+<p><span class="math display">
+\begin{array}{rcl}
+\boldsymbol{v}^{(t + \varepsilon/2)} 
+    &amp; \leftarrow 
+    &amp; \displaystyle \boldsymbol{v}^{(t)} -  \frac{\varepsilon}{2} \frac{\partial U}{\partial \boldsymbol{\theta}}(\boldsymbol{\theta}^{(t)})
+\\ \\
+\boldsymbol{\theta}^{(t + \varepsilon)}  
+    &amp; \leftarrow 
+    &amp; \boldsymbol{\theta}^{(t)} + \varepsilon \boldsymbol{M}^{-1} \boldsymbol{v}^{(t + \varepsilon / 2)}
+\\ \\
+\boldsymbol{v}^{(t + \varepsilon)}  
+    &amp; \leftarrow 
+    &amp; \displaystyle \boldsymbol{v}^{(t + \varepsilon/2)} - \frac{\varepsilon}{2} \frac{\partial U}{\partial \boldsymbol{\theta}}(\boldsymbol{\theta}^{(t + \varepsilon)} )
+\end{array}
+</span></p>

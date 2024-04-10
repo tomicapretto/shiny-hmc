@@ -1,0 +1,17 @@
+Start the algorithm at an initial position $\boldsymbol{\theta}$. For a number of iterations, do:
+
+1. Draw a random momentum $\boldsymbol{v}$.
+1. Evolve the system $(\boldsymbol{\theta}, \boldsymbol{v})$ according to Hamilton's equations using the leapfrog integrator with $L$ steps of size $\varepsilon$ to get $(\boldsymbol{\theta}', \boldsymbol{v}')$.
+1. Apply the Metropolis acceptance step to determine whether to update to the new status $(\boldsymbol{\theta}', \boldsymbol{v}')$ or stay on the 
+current one $(\boldsymbol{\theta}, \boldsymbol{v})$.
+
+#### Resources
+
+The details of the Hamiltonian Monte Carlo algorithm are based on the following resources:
+
+* [Hamiltonian Monte Carlo from scratch - Colin Carroll](https://colindcarroll.com/2019/04/11/hamiltonian-monte-carlo-from-scratch/)
+* [Step Size Adaptation in Hamiltonian Monte Carlo - Colin Carroll](https://colindcarroll.com/2019/04/21/step-size-adaptation-in-hamiltonian-monte-carlo/)
+* [Choice of Symplectic Integrator in Hamiltonian Monte Carlo - Colin Carroll](https://colindcarroll.com/2019/04/28/choice-of-symplectic-integrator-in-hamiltonian-monte-carlo/)
+* [Adaptation in gradient-based Markov chain Monte Carlo - Colin Carroll](https://colcarroll.github.io/mcmc-adapt/)
+* [MCMC Sampling - Stan Reference Manual](https://mc-stan.org/docs/reference-manual/mcmc.html)
+* [Hamiltonian Monte Carlo - Gregory Gundersen](https://gregorygundersen.com/blog/2020/07/05/hmc/)

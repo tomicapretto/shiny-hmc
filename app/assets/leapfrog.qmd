@@ -1,0 +1,25 @@
+The leapfrog integrator is a popular numerical integration algorithm that provides stable results for Hamiltonian systems of equations. 
+It discretizes time using $L$ small steps of size $\varepsilon$, resulting in $L\varepsilon$ total time.
+
+The first step in the algorithm is to draw a random momentum $\boldsymbol{v}$ independently
+of the parameter values $\boldsymbol{\theta}$ (the position) or previous momentum values.
+
+Then, it alternates half-step updates of the momentum and full-step updates of the position.
+It computes a half-step update of the momentum, a full-step update of the position using the new momentum,
+and finally another half-step update in the momentum using the new position.
+
+$$
+\begin{array}{rcl}
+\boldsymbol{v}^{(t + \varepsilon/2)} 
+    & \leftarrow 
+    & \displaystyle \boldsymbol{v}^{(t)} -  \frac{\varepsilon}{2} \frac{\partial U}{\partial \boldsymbol{\theta}}(\boldsymbol{\theta}^{(t)})
+\\ \\
+\boldsymbol{\theta}^{(t + \varepsilon)}  
+    & \leftarrow 
+    & \boldsymbol{\theta}^{(t)} + \varepsilon \boldsymbol{M}^{-1} \boldsymbol{v}^{(t + \varepsilon / 2)}
+\\ \\
+\boldsymbol{v}^{(t + \varepsilon)}  
+    & \leftarrow 
+    & \displaystyle \boldsymbol{v}^{(t + \varepsilon/2)} - \frac{\varepsilon}{2} \frac{\partial U}{\partial \boldsymbol{\theta}}(\boldsymbol{\theta}^{(t + \varepsilon)} )
+\end{array}
+$$

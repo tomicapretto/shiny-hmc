@@ -1,0 +1,20 @@
+The MCMC algorithm starts with a random draw for the momentum from a Gaussian distribution
+$$
+\boldsymbol{v} \sim \mathcal{N}(\boldsymbol{0}, \boldsymbol{M})
+$$
+
+To update both $\boldsymbol{v}$ and $\boldsymbol{\theta}$, we need to simulate Hamiltonian
+dynamics using Hamilton's equations, which describe the change in $\boldsymbol{\theta}$ and 
+$\boldsymbol{v}$ as a function of time $t$
+$$
+\begin{aligned}
+\frac{d\boldsymbol{\theta}}{dt} &= \frac{\partial \mathcal{H}}{\partial \boldsymbol{v}} \\
+\frac{d\boldsymbol{v}}{dt} &= -\frac{\partial \mathcal{H}}{\partial \boldsymbol{\theta}}
+\end{aligned}
+$$
+
+As a result, we would obatin a new position vector $\boldsymbol{\theta}'$ that is 
+uncorrelated from the position in the previous step $\boldsymbol{\theta}$.
+
+Unfortunately, these equations cannot be solved analytically, and consequently it is not 
+possible to simulate Hamiltonian dynamics exactly.

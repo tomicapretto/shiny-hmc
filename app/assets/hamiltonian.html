@@ -1,0 +1,20 @@
+<p>Hamiltonian Monte Carlo introduces an auxiliary momentum variable <span class="math inline">\boldsymbol{v}</span> and draws from a joint density <span class="math display">
+p(\boldsymbol{v}, \boldsymbol{\theta}) = p(\boldsymbol{v} \mid \boldsymbol{\theta}) p(\boldsymbol{\theta})
+</span></p>
+<p>In most applications of HMC, the auxiliary momentum variable does not depend on the parameters <span class="math inline">\boldsymbol{\theta}</span>.</p>
+<p>The joint density <span class="math inline">p(\boldsymbol{v}, \boldsymbol{\theta})</span> defines the Hamiltonian <span class="math display">
+\begin{aligned}
+\mathcal{H}(\boldsymbol{\theta}, \boldsymbol{v}) &amp;=  - \log p(\boldsymbol{v}, \boldsymbol{\theta}) \\
+&amp; = - \log p(\boldsymbol{v} \mid \boldsymbol{\theta}) - \log p(\boldsymbol{\theta}) \\
+&amp; = - \log p(\boldsymbol{v}) - \log p(\boldsymbol{\theta}) \\
+&amp; = K(\boldsymbol{v}) + U(\boldsymbol{\theta})
+\end{aligned}
+</span></p>
+<p>where the simplification between lines 2 and 3 occur because the momentum does not depend on the parameters.</p>
+<p>The Hamiltonian represents the total energy in a system: the sum of the the kinetic energy <span class="math inline">K(\boldsymbol{v})</span>, which depends on the momentum, and the potential energy <span class="math inline">U(\boldsymbol{\theta})</span>, which depends on the position <span class="math inline">\boldsymbol{\theta}</span>.</p>
+<p>In our use case, we take <span class="math display">
+\begin{aligned}
+U(\boldsymbol{\theta}) &amp;= -\log[p^*(\boldsymbol{\theta} \mid \boldsymbol{y})] \\
+K(\boldsymbol{v}) &amp;= \frac{1}{2} \boldsymbol{v}^T \boldsymbol{v} + \text{const}
+\end{aligned}
+</span></p>
