@@ -14,6 +14,8 @@ If it doesn't work, this is a list of dependencies you need to consider
 
 To run the app, simply execute the `app.R` script.
 
+This is still a work in progress. I do have a couple of ideas to try and I would like to document everything a bit more. Suggestions are more than welcomed :)
+
 ## Ideas
 
 ### Features
