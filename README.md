@@ -11,6 +11,7 @@ If it doesn't work, this is a list of dependencies you need to consider
 * `{katex}`
 * `{here}`
 * `{Deriv}`
+* `{R6}`
 
 To run the app, simply execute the `app.R` script.
 
