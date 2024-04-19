@@ -1,0 +1,23 @@
+Package: shinyhmc
+Title: Hamiltonian Monte Carlo in Shiny
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Tomas",
+           family = "Capretto",
+           role = c("aut", "cre"),
+           email = "tomicapretto@gmail.com")
+Description: Interactive Hamiltonian Monte Carlo sampler in Shiny.
+License: Apache License (>= 2)
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.1
+Imports: 
+    Deriv (>= 4.1.3),
+    katex (>= 1.4.1),
+    mvtnorm (>= 1.1.3),
+    R6 (>= 2.5.0),
+    rgl (>= 1.3.1),
+    shiny (>= 1.7.3),
+    shinyjs (>= 2.1.0),
+    shinyWidgets (>= 0.7.5)

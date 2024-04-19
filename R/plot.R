@@ -19,7 +19,7 @@ arbitrary_scale <- function(x, lb, ub, x_min = NULL, x_max = NULL) {
 
 get_surface_colors <- function(x, colors, n = 50) {
   colors <- colorRampPalette(colors)(n)
-  idxs <- ceiling(ecdf(unique(x))(x) * 50)
+  idxs <- ceiling(stats::ecdf(unique(x))(x) * 50)
   return(colors[idxs])
 }
 

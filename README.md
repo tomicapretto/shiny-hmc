@@ -1,21 +1,28 @@
-# README
+# ShinyHMC
 
-This project uses `{renv}`. If you clone the repository and open the project, `{renv}` should set everything up for you.
-
-If it doesn't work, this is a list of dependencies you need to consider
-
-* `{shiny}`
-* `{shinyjs}`
-* `{shinyWidgets}`
-* `{rgl}`
-* `{katex}`
-* `{here}`
-* `{Deriv}`
-* `{R6}`
-
-To run the app, simply execute the `app.R` script.
+An interactive Shiny app to learn about Hamiltonian Monte Carlo sampling.
 
 This is still a work in progress. I do have a couple of ideas to try and I would like to document everything a bit more. Suggestions are more than welcomed :)
+
+## Installation
+
+Install this package from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("tomicapretto/shiny-hmc")
+```
+
+## Run application
+
+The function `run_app()` fires up the application. Just do
+
+``` r
+shinyhmc::run_app()
+```
+
+and have fun!
+
 
 ## Ideas
 

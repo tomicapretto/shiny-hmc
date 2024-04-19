@@ -1,5 +1,4 @@
-source(here::here("app", "utils", "ui.R"))
-source(here::here("app", "utils", "range-input.R"))
+#' @importFrom shiny tags
 
 select_input_options <- list(
   render = I("
@@ -36,7 +35,7 @@ make_sidebar <- function() {
       ui_row(
         ui_col(
           width = 16,
-          selectizeInput("distribution", NULL, choices, options = select_input_options)
+          shiny::selectizeInput("distribution", NULL, choices, options = select_input_options)
         )
       )
     ),
@@ -83,7 +82,7 @@ make_sidebar <- function() {
         ui_row(
             ui_col(
               width = 16,
-              actionButton("add_point", "Sample a single point", width = "100%")
+              shiny::actionButton("add_point", "Sample a single point", width = "100%")
             )
         )
     ),
@@ -92,7 +91,7 @@ make_sidebar <- function() {
       ui_row(
         ui_col(
           width = 16,
-          actionButton("remove_points", "Remove points", width = "100%")
+          shiny::actionButton("remove_points", "Remove points", width = "100%")
         )
       )
     )
@@ -109,12 +108,12 @@ make_body <- function() {
     tags$div(
       class = "plot-container",
       tags$div(
-        HTML(katex::katex_html(tex_panel_1, preview = FALSE)),
+        htmltools::HTML(katex::katex_html(tex_panel_1, preview = FALSE)),
         class = "box",
         rgl::rglwidgetOutput("rglPlot", width = "100%")
       ),
       tags$div(
-        HTML(katex::katex_html(tex_panel_2, preview = FALSE)),
+        htmltools::HTML(katex::katex_html(tex_panel_2, preview = FALSE)),
         class = "box",
         rgl::rglwidgetOutput("rglPlot2", width = "100%")
       )
@@ -127,46 +126,36 @@ make_body <- function() {
         class = "accordion",
         accordionItem(
           "The Hamiltonian",
-          HTML(
-            katex::render_math_in_html(
-              here::here("app", "assets", "hamiltonian.html"), include_css = FALSE
-            )
+          htmltools::HTML(
+            katex::render_math_in_html(app_sys("www/assets/hamiltonian.html"), include_css = FALSE)
           )
         ),
         tags$hr(),
         accordionItem(
           "Hamilton's equations",
-          HTML(
-            katex::render_math_in_html(
-              here::here("app", "assets", "hamiltons.html"), include_css = FALSE
-            )
+          htmltools::HTML(
+            katex::render_math_in_html(app_sys("www/assets/hamiltons.html"), include_css = FALSE)
           )
         ),
         tags$hr(),
         accordionItem(
           "Leapfrog integrator",
-          HTML(
-            katex::render_math_in_html(
-              here::here("app", "assets", "leapfrog.html"), include_css = FALSE
-            )
+          htmltools::HTML(
+            katex::render_math_in_html(app_sys("www/assets/leapfrog.html"), include_css = FALSE)
           )
         ),
         tags$hr(),
         accordionItem(
           "Metropolis acceptance criteria",
-          HTML(
-            katex::render_math_in_html(
-              here::here("app", "assets", "accept.html"), include_css = FALSE
-            )
+          htmltools::HTML(
+            katex::render_math_in_html(app_sys("www/assets/accept.html"), include_css = FALSE)
           )
         ),
         tags$hr(),
         accordionItem(
           "Summary",
-          HTML(
-            katex::render_math_in_html(
-              here::here("app", "assets", "summary.html"), include_css = FALSE
-            )
+          htmltools::HTML(
+            katex::render_math_in_html(app_sys("www/assets/summary.html"), include_css = FALSE)
           )
         ),
         tags$hr()
@@ -186,10 +175,11 @@ accordionItem <- function(label, content) {
 ui <- function() {
   header <- tags$head(
     tags$title("Shiny HMC"),
-    tags$script(src = "hmc.js"),
-    tags$script(src = "sidebar.js"),
-    tags$script(src = "accordion.js"),
-    tags$link(rel = "stylesheet", href = "styles.css"),
+    tags$link(rel = "icon", type = "image/png", sizes = "64x64", href = "www/alpine.png"),
+    tags$script(type = "text/javascript", src = "www/hmc.js"),
+    tags$script(type = "text/javascript", src = "www/sidebar.js"),
+    tags$script(type = "text/javascript", src = "www/accordion.js"),
+    tags$link(type="text/css", rel = "stylesheet", href = "www/styles.css"),
     tags$link(
       rel = "stylesheet", 
       href = "https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css", 
@@ -209,7 +199,7 @@ ui <- function() {
     make_body()
   )
   
-  ui <- do.call(tagList, list(body, header))
+  ui <- do.call(htmltools::tagList, list(body, header))
   htmltools::attachDependencies(ui, shiny::bootstrapLib())
 }
 

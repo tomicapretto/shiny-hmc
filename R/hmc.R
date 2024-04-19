@@ -117,7 +117,6 @@ SamplerHMC <- R6::R6Class(
     generate_momentum = function() {
       n <- length(self$initial_position)
       mvtnorm::rmvnorm(1, rep(0, n), diag(n))
-      #c(0, 0)
     },
     
     generate_xyz = function() {

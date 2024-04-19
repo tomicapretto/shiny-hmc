@@ -154,9 +154,6 @@ banana_dlogp <- function(x, y, a, b) {
   unname(banana_dlogp_(x, y, a, b))
 }
 
-# banana_logp(0, 1, 1, 100)
-# banana_dlogp(0, 1, 1, 00)
-
 BananaDistribution <- R6::R6Class(
   classname = "BananaDistribution",
   inherit = Distribution,
@@ -235,8 +232,6 @@ funnel_dlogp_ <- Deriv::Deriv(funnel_logp, c("x", "y"))
 funnel_dlogp <- function(x, y, m1, m2, sigma) {
   unname(funnel_dlogp_(x, y, m1, m2, sigma))
 }
-
-# funnel_dlogp(0.3, 0.7, 0, 0, 3)
 
 FunnelDistribution <- R6::R6Class(
   classname = "FunnelDistribution",

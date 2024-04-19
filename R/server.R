@@ -1,8 +1,5 @@
-source(here::here("app", "utils", "distributions.R"))
-source(here::here("app", "utils", "hmc.R"))
-source(here::here("app", "utils", "plot.R"))
-source(here::here("app", "utils", "rgl.R"))
-
+#' @importFrom grDevices colorRampPalette
+#' @importFrom utils head tail
 SPEED_TO_MS <- c(700, 500, 250)
 
 # Create covariance matrix for a normal distribution with a given correlation
@@ -72,7 +69,9 @@ AppDataContainer <- R6::R6Class(
     clip_z = NULL,
     z_min = NULL,
     z_upper = NULL,
-    length_out = NULL
+    length_out = NULL,
+    sampler_data = NULL,
+    arrow_obj = NULL
   )
 )
 
@@ -104,9 +103,6 @@ app_data <- AppDataContainer$new()
 points_objects_dev1 <- Stack$new()
 points_objects_dev2 <- Stack$new()
 
-data <- NULL
-arrow <- NULL
-
 server <- function(input, output, session) {
   options_to_save <- options(rgl.inShiny = TRUE)
   on.exit(options(options_to_save))
@@ -114,24 +110,24 @@ server <- function(input, output, session) {
   session$onSessionEnded(function() {
     try(
       {
-        set3d(rgl_devices$dev1)
-        close3d()
-        set3d(rgl_devices$dev2)
-        close3d()
+        rgl::set3d(rgl_devices$dev1)
+        rgl::close3d()
+        rgl::set3d(rgl_devices$dev2)
+        rgl::close3d()
       },
       silent = TRUE
     )
   })
      
-  dist <- reactiveVal()
+  dist <- shiny::reactiveVal()
 
-  observe({
+  shiny::observe({
     # Set new value
     dist(DISTRIBUTIONS[[input$distribution]]) 
     
-    step_size <- isolate(input$step_size)
-    path_length <- isolate(input$path_length)
-    initial_position <- INITIAL_POSITIONS[[isolate(input$distribution)]]
+    step_size <- shiny::isolate(input$step_size)
+    path_length <- shiny::isolate(input$path_length)
+    initial_position <- INITIAL_POSITIONS[[shiny::isolate(input$distribution)]]
 
     app_data$sampler <- SamplerHMC$new(
       dist()$neg_logp, 
@@ -156,43 +152,43 @@ server <- function(input, output, session) {
   })
   
 
-  output$rglPlot <- renderRglwidget({
-    req(dist())
+  output$rglPlot <- rgl::renderRglwidget({
+    shiny::req(dist())
     
-    rgl_devices$dev1 <- open3d()
-    set3d(rgl_devices$dev1)
+    rgl_devices$dev1 <- rgl::open3d()
+    rgl::set3d(rgl_devices$dev1)
 
     plot_neg_logp(dist(), app_data$length_out)
-    view3d(theta = 0, phi = -55, zoom = 0.9)
-    rglwidget()
+    rgl::view3d(theta = 0, phi = -55, zoom = 0.9)
+    rgl::rglwidget()
   })
   
-  output$rglPlot2 <- renderRglwidget({
-    req(dist())
-    rgl_devices$dev2 <- open3d()
-    set3d(rgl_devices$dev2)
+  output$rglPlot2 <- rgl::renderRglwidget({
+    shiny::req(dist())
+    rgl_devices$dev2 <- rgl::open3d()
+    rgl::set3d(rgl_devices$dev2)
     plot_density(dist(), app_data$length_out)
-    view3d(theta = 0, phi = -55, zoom = 0.9)
+    rgl::view3d(theta = 0, phi = -55, zoom = 0.9)
     
     # Use parameters from the first device so both plots have a similar layout
-    pars_dev1 <- par3d(dev = rgl_devices$dev1)
-    par3d(scale = pars_dev1$scale)
-    observer3d(pars_dev1$observer[1], pars_dev1$observer[2], pars_dev1$observer[3])
-    
-    rglwidget()
+    pars_dev1 <- rgl::par3d(dev = rgl_devices$dev1)
+    rgl::par3d(scale = pars_dev1$scale)
+    rgl::observer3d(pars_dev1$observer[1], pars_dev1$observer[2], pars_dev1$observer[3])
+    rgl::rglwidget()
   })
 
   # Reactively update the sampler's path length and step size
-  observe(app_data$sampler$set_path_length(input$path_length))
-  observe(app_data$sampler$set_step_size(input$step_size))
+  shiny::observe(app_data$sampler$set_path_length(input$path_length))
+  shiny::observe(app_data$sampler$set_step_size(input$step_size))
   
-  observeEvent(list(input$add_point, input$continue_sampling), {  
+  shiny::observeEvent(list(input$add_point, input$continue_sampling), {  
     # Add trajectory and point to the first device
-    req(rgl_devices$dev1)
-    set3d(rgl_devices$dev1)
+    shiny::req(rgl_devices$dev1)
+    rgl::set3d(rgl_devices$dev1)
     subscene <- rgl::currentSubscene3d()
     
-    data <<- app_data$sampler$generate_xyz()
+    app_data$sampler_data <- app_data$sampler$generate_xyz()
+    data <- app_data$sampler_data
 
     momentum <- paste0("(", round(data$momentum$x, 3), ", ", round(data$momentum$y, 3), ")")
     shinyjs::html("text_momentum", paste("Momentum:", momentum))
@@ -216,7 +212,7 @@ server <- function(input, output, session) {
     }
 
     # Add momentum arrow
-    arrow <<- arrow3d(
+    app_data$arrow_obj <- rgl::arrow3d(
       p0 = c(segments_x[1], segments_y[1], 0),
       p1 = c(data$momentum$x, data$momentum$y, 0),
       color = "grey30",
@@ -227,7 +223,7 @@ server <- function(input, output, session) {
     )
 
     subscene <- rgl::currentSubscene3d()
-    msg_objects <- get_objects(list(arrow), subscene)
+    msg_objects <- get_objects(list(app_data$arrow_obj), subscene)
     session$sendCustomMessage(
       "addToRglPlot", 
       list(id = "rglPlot", objects = msg_objects, subscene = subscene)
@@ -246,7 +242,9 @@ server <- function(input, output, session) {
       x = segments_x, y = segments_y, z = segments_z,  color = "red"
     )
     
-    point <- points3d(x = point_x, y = point_y, z = point_z, color = point_color, size = 4)
+    point <- rgl::points3d(
+        x = point_x, y = point_y, z = point_z, color = point_color, size = 4
+    )
 
     # Add segments and points to the device
     objects_list <- c(segments, point)
@@ -266,7 +264,9 @@ server <- function(input, output, session) {
   }, ignoreInit = TRUE)
   
   # `input$trajectory_done` is changed when the program finishes plotting the trajectory
-  observeEvent(input$trajectory_done, {
+  shiny::observeEvent(input$trajectory_done, {
+    
+    data <- app_data$sampler_data
 
     # Update statistics on the first device
     status <- if (isTRUE(data$accepted)) "Accepted" else "Rejected"
@@ -279,12 +279,12 @@ server <- function(input, output, session) {
     shinyjs::html("text_divergent", paste("Divergent:", divergent))
 
     # Add the sampled point to the second device, where we have the density function.
-    req(input$trajectory_done, rgl_devices$dev2)
-    set3d(rgl_devices$dev2)
+    shiny::req(input$trajectory_done, rgl_devices$dev2)
+    rgl::set3d(rgl_devices$dev2)
     subscene <- rgl::currentSubscene3d()
     
     if (data$accepted) {
-      point <- points3d(
+      point <- rgl::points3d(
         x = data$point$x, y = data$point$y, z = 0, color = "red", size = 4
       )
       msg_objects <- get_objects(list(point), subscene)
@@ -301,17 +301,17 @@ server <- function(input, output, session) {
     }
 
     # Delete the momentum arrow on the first device
-    set3d(rgl_devices$dev1)
+    rgl::set3d(rgl_devices$dev1)
     subscene <- rgl::currentSubscene3d()
     session$sendCustomMessage(
       "deleteFromRglPlot", 
-      list(id = "rglPlot", objects = list(arrow), subscene = subscene)
+      list(id = "rglPlot", objects = list(app_data$arrow_obj), subscene = subscene)
     )
   })
 
   # When the button `input$keep_sampling` is enabled, it disables the "add_point" button
   # and triggers the "continue_sampling" input which starts the sampler.
-  observeEvent(input$keep_sampling, {
+  shiny::observeEvent(input$keep_sampling, {
     if (length(input$keep_sampling)) {
       shinyjs::disable("add_point")
       session$sendCustomMessage("updateInputValue", list(id = "continue_sampling"))
@@ -321,10 +321,10 @@ server <- function(input, output, session) {
   }, ignoreNULL = FALSE)
   
   # Remove all sampled points from all devices
-  observeEvent(input$remove_points, {
+  shiny::observeEvent(input$remove_points, {
     # Remove points from the first device
-    req(rgl_devices$dev1)
-    set3d(rgl_devices$dev1)
+    shiny::req(rgl_devices$dev1)
+    rgl::set3d(rgl_devices$dev1)
     subscene <- rgl::currentSubscene3d()
     session$sendCustomMessage(
       "deleteFromRglPlot", 
@@ -333,8 +333,8 @@ server <- function(input, output, session) {
     points_objects_dev1$clear()
     
     # Remove points from the second device
-    req(rgl_devices$dev2)
-    set3d(rgl_devices$dev2)
+    shiny::req(rgl_devices$dev2)
+    rgl::set3d(rgl_devices$dev2)
     subscene <- rgl::currentSubscene3d()
     session$sendCustomMessage(
       "deleteFromRglPlot", 

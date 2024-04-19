@@ -35,8 +35,8 @@ rangeInput <- function(
 
   deps <- htmltools::htmlDependency(
     name = "rangeInput",
-    version = "1.0.2",
-    src = c(file = here::here("app", "www", "range-input")),
+    version = "1.0.0",
+    src = c(file = app_sys("www", "range-input")),
     script = "binding.js",
     stylesheet = "styles.css"
   )
