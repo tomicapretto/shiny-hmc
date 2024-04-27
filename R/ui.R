@@ -1,5 +1,30 @@
 #' @importFrom shiny tags
 
+
+tooltip <- function(label, content) {
+  tags$div(
+    class = "control-label-tooltip",
+    label,
+    tags$span(
+      class = "control-label-tooltip-content",
+      content
+    )
+  )
+}
+
+control_label <- function(label, tooltip_label = NULL, tooltip_content = NULL) {
+  if (is.null(tooltip_label)) {
+    out <- tags$div(tags$p(label), class = "control-label")
+  } else {
+    out <- tags$div(
+      tags$p(label),
+      tooltip(tooltip_label, tooltip_content),
+      class = "control-label"
+    )
+  }
+  out
+}
+
 select_input_options <- list(
   render = I("
     {
@@ -46,14 +71,14 @@ make_sidebar <- function() {
         ui_col(
           width = 16,
           rangeInput("path_length", min = 0.1, max = 5, step = 0.1, value = 2),
-          tags$p("Path length", class = "range-input-label")
+          control_label("Path length", shiny::icon("question-circle"), "For how long to integrate the trajectory (aka integration time)")
         )
       ),
       ui_row(
         ui_col(
           width = 16,
           rangeInput("step_size", min = 0.01, max = 1, step = 0.01, value = 0.05),
-          tags$p("Step size", class = "range-input-label")
+          control_label("Step size", shiny::icon("question-circle"), "Time length of the discretization steps"),
         )
       ),
       ui_row(

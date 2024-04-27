@@ -79,3 +79,59 @@ input[type=range]:focus::-webkit-slider-runnable-track {
   margin-bottom: 35px;
   margin-top: -7.5px;
 }
+
+.control-label {
+  font-family: "Roboto Slab", sans-serif;
+  font-size: 14px;
+  margin-bottom: 35px;
+  margin-top: -7.5px;
+  display: flex;
+  gap: 5px;
+}
+
+/* Tooltip container */
+.control-label-tooltip {
+  position: relative;
+  display: inline-block;
+  font-size: 14px;  
+}
+
+/* Tooltip text */
+.control-label-tooltip .control-label-tooltip-content {
+  visibility: hidden;
+  width: auto;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  padding: 3px 6px;
+  border-radius: 5px;
+  font-size: 11px;  
+
+  /* Position the tooltip text */
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 150%;
+
+  /* Fade in tooltip */
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+/* Tooltip arrow */
+.control-label-tooltip .control-label-tooltip-content::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 100%;
+  margin-top: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent #555 transparent transparent;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.control-label-tooltip:hover .control-label-tooltip-content {
+  visibility: visible;
+  opacity: 1;
+}
