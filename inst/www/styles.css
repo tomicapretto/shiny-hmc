@@ -5,11 +5,11 @@
   background: hsl(210, 45%, 50%);
   color: white;
   max-width: 500px;
-  min-width: 300px;
+  min-width: 350px;
   overflow: hidden;
   padding: 10px;
   position: relative; /* For the resizable handle */
-  width: 320px;
+  width: 420px;
 }
 
 #sidebar .item {

@@ -57,7 +57,9 @@ make_sidebar <- function() {
     tags$div(
       class = "item",
       tags$p("Choose a distribution", class = "sidebar-group-header"),
-      shiny::selectizeInput("distribution", NULL, choices, options = select_input_options)
+      shiny::selectizeInput(
+        "distribution", NULL, choices, options = select_input_options, width = "100%"
+      )
     ),
     tags$div(
       class = "item",
