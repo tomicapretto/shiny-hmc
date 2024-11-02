@@ -132,16 +132,11 @@ make_body <- function() {
     tags$h2("How does Hamiltonian Monte Carlo work?", class = "body-header"),
     tags$div(
       class = "plot-container",
-      tags$div(
-        htmltools::HTML(katex::katex_html(tex_panel_1, preview = FALSE)),
-        class = "box",
-        rgl::rglwidgetOutput("rglPlot", width = "100%")
-      ),
-      tags$div(
-        htmltools::HTML(katex::katex_html(tex_panel_2, preview = FALSE)),
-        class = "box",
-        rgl::rglwidgetOutput("rglPlot2", width = "100%")
-      )
+      tags$div(htmltools::HTML(katex::katex_html(tex_panel_1, preview = FALSE))),
+      tags$div(htmltools::HTML(katex::katex_html(tex_panel_2, preview = FALSE))),
+    ),
+    tags$div(
+      rgl::rglwidgetOutput("rglPlot", width = "100%")
     ),
     tags$div(
       style = "padding-left: 10px;",
