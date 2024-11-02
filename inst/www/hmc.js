@@ -213,9 +213,9 @@ function waitForCanvas(plot_id, callback) {
 
       // Change the height of the 'div' so it's adjusts to canvas height
       // Can't do this when creating the plot because rgl does not accept relative units
-      $(".rglWebGL").each(function (obj) {
-        $(this).css("height", "100%");
-      });
+      // $(".rglWebGL").each(function (obj) {
+      //   $(this).css("height", "100%");
+      // });
     }
   }, 250);
 }
