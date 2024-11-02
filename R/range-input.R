@@ -13,11 +13,11 @@ rangeInput <- function(
   }
 
   input <- tags$input(
-    type = "range", 
-    min = min, 
-    max = max, 
-    value = value, 
-    step = step, 
+    type = "range",
+    min = min,
+    max = max,
+    value = value,
+    step = step,
     `data-label` = data_label
   )
 

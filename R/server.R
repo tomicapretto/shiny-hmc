@@ -19,9 +19,9 @@ normal_3 <- NormalDistribution$new(mu = c(0, 0), sigma = make_sigma(0.7))
 banana <- BananaDistribution$new()
 funnel <- FunnelDistribution$new()
 normal_mixture <- NormalMixture$new(
-  mu1 = c(-1.5, -1.7), 
-  mu2 = c(0.9, 0.5), 
-  sigma1 = diag(2) * 0.2, 
+  mu1 = c(-1.5, -1.7),
+  mu2 = c(0.9, 0.5),
+  sigma1 = diag(2) * 0.2,
   sigma2 = diag(2) * 1.25
 )
 
@@ -52,15 +52,6 @@ INITIAL_POSITIONS <- list(
   "funnel" = c(-0.5, -1)
 )
 
-# Like an environment but safer as it doesn't allow to set new bindings
-RGLDeviceContainer <- R6::R6Class(
-  classname = "RGLDeviceContainer", 
-  public = list(
-    dev1 = NULL, 
-    dev2 = NULL
-  )
-)
-
 # A data container that stores different quantities required in several places
 AppDataContainer <- R6::R6Class(
   classname = "AppDataContainer",
@@ -75,7 +66,7 @@ AppDataContainer <- R6::R6Class(
   )
 )
 
-# A stack to store the points on the devices
+# A stack to store the points on the subscenes
 Stack <- R6::R6Class(
   classname = "Stack",
   public = list(
@@ -98,7 +89,6 @@ Stack <- R6::R6Class(
   )
 )
 
-#rgl_devices <- RGLDeviceContainer$new()
 app_data <- AppDataContainer$new()
 points_objects_dev1 <- Stack$new()
 points_objects_dev2 <- Stack$new()
@@ -108,6 +98,7 @@ server <- function(input, output, session) {
   on.exit(options(options_to_save))
 
   dist <- shiny::reactiveVal()
+  keep_sampling_rv <- shiny::reactiveVal(FALSE)
 
   shiny::observe({
     # Set new value
@@ -143,21 +134,35 @@ server <- function(input, output, session) {
   output$rglPlot <- rgl::renderRglwidget({
     shiny::req(dist())
     rgl::mfrow3d(1, 2, sharedMouse = TRUE)
+    rgl::view3d(theta = 0, phi = -55, zoom = 0.9)
     plot_neg_logp(dist(), app_data$length_out)
 
     rgl::next3d()
+    rgl::view3d(theta = 0, phi = -55, zoom = 0.9)
     plot_density(dist(), app_data$length_out)
     rgl::rglwidget()
   })
 
 
   # Reactively update the sampler's path length and step size
-  shiny::observe(app_data$sampler$set_path_length(input$path_length))
-  shiny::observe(app_data$sampler$set_step_size(input$step_size))
+  shiny::observe(
+    {
+      # Check step size is smaller than path length
+      req(input$step_size < input$path_length)
+      app_data$sampler$set_path_length(input$path_length)
+      app_data$sampler$set_step_size(input$step_size)
+    }
+  )
 
   shiny::observeEvent(list(input$add_point, input$continue_sampling), {
-    # Add trajectory and point to the first device
-    app_data$sampler_data <- app_data$sampler$generate_xyz()
+    # Add trajectory and point to the first subscene
+    momentum_xy <- c(isolate(input$momentum_x), isolate(input$momentum_y))
+    if (isolate(input$manual_momentum)) {
+      app_data$sampler_data <- app_data$sampler$generate_xyz(momentum_xy)
+    } else {
+      app_data$sampler_data <- app_data$sampler$generate_xyz()
+    }
+
     data <- app_data$sampler_data
 
     momentum <- paste0("(", round(data$momentum$x, 3), ", ", round(data$momentum$y, 3), ")")
@@ -208,15 +213,13 @@ server <- function(input, output, session) {
       point_z, 0, app_data$z_upper, x_min = app_data$z_min, x_max = app_data$clip_z
     )
 
-    segments <- make_trajectory_segments(
-      x = segments_x, y = segments_y, z = segments_z,  color = "red"
-    )
+    segments <- make_trajectory_segments(x = segments_x, y = segments_y, z = segments_z)
 
     point <- rgl::points3d(
         x = point_x, y = point_y, z = point_z, color = point_color, size = 4
     )
 
-    # Add segments and points to the device
+    # Add segments and points to the subscene
     objects_list <- c(segments, point)
     msg_objects <- get_objects(objects_list, subscene)
 
@@ -233,13 +236,28 @@ server <- function(input, output, session) {
     points_objects_dev1$push(point)
   }, ignoreInit = TRUE)
 
+
+  shiny::observeEvent(input$manual_momentum, {
+    if (input$manual_momentum) {
+      shinyjs::enable("momentum_x")
+      shinyjs::enable("momentum_y")
+    } else {
+      shinyjs::disable("momentum_x")
+      shinyjs::disable("momentum_y")
+    }
+  })
+
   # `input$trajectory_done` is changed when the program finishes plotting the trajectory
   shiny::observeEvent(input$trajectory_done, {
 
     data <- app_data$sampler_data
 
-    # Update statistics on the first device
+    # Update statistics on the first subscene
     status <- if (isTRUE(data$accepted)) "Accepted" else "Rejected"
+
+    position <- paste0("(", round(data$point$x, 3), ", ", round(data$point$y, 3), ")")
+    shinyjs::html("text_position", paste("Position:", position))
+
     shinyjs::html("text_status", paste("Status:", status))
 
     energy_diff <- round(data$h_current - data$h_proposal, 5)
@@ -248,7 +266,7 @@ server <- function(input, output, session) {
     divergent <- if (data$divergent) "Yes" else "No"
     shinyjs::html("text_divergent", paste("Divergent:", divergent))
 
-    # Add the sampled point to the second device, where we have the density function.
+    # Add the sampled point to the second subscene, where we have the density function.
     shiny::req(input$trajectory_done)
     subscene <- rgl::subsceneList()[[2]]
 
@@ -264,44 +282,49 @@ server <- function(input, output, session) {
       points_objects_dev2$push(point)
     }
 
-    # Decide whether to keep sampling or not
-    if (length(input$keep_sampling)) {
+    if (isolate(keep_sampling_rv())) {
       session$sendCustomMessage("updateInputValue", list(id = "continue_sampling"))
     }
 
-    # Delete the momentum arrow on the first device
+    # Delete the momentum arrow on the first subscene
     subscene <- rgl::subsceneList()[[1]]
     session$sendCustomMessage(
-      "deleteFromRglPlot", 
+      "deleteFromRglPlot",
       list(id = "rglPlot", objects = list(app_data$arrow_obj), subscene = subscene)
     )
   })
 
-  # When the button `input$keep_sampling` is enabled, it disables the "add_point" button
-  # and triggers the "continue_sampling" input which starts the sampler.
-  shiny::observeEvent(input$keep_sampling, {
-    if (length(input$keep_sampling)) {
-      shinyjs::disable("add_point")
-      session$sendCustomMessage("updateInputValue", list(id = "continue_sampling"))
-    } else {
-      shinyjs::enable("add_point")
-    }
-  }, ignoreNULL = FALSE)
+  # Start sampling
+  shiny::observeEvent(input$start_sampling, {
+    shinyjs::disable("start_sampling")
+    shinyjs::disable("add_point")
+    shinyjs::enable("stop_sampling")
+    keep_sampling_rv(TRUE)
+    session$sendCustomMessage("updateInputValue", list(id = "continue_sampling"))
+  })
 
-  # Remove all sampled points from all devices
+  # Stop sampling
+  shiny::observeEvent(input$stop_sampling, {
+    shinyjs::disable("stop_sampling")
+    shinyjs::enable("start_sampling")
+    shinyjs::enable("add_point")
+    keep_sampling_rv(FALSE)
+  })
+
+  # Remove all sampled points from all subscenes
   shiny::observeEvent(input$remove_points, {
-    # Remove points from the first device
+    # Remove points from the first subscene
     subscene <- rgl::subsceneList()[[1]]
     session$sendCustomMessage(
-      "deleteFromRglPlot", 
+      "deleteFromRglPlot",
       list(id = "rglPlot", objects = points_objects_dev1$items, subscene = subscene)
     )
     points_objects_dev1$clear()
 
-    # Remove points from the second device
+    # Remove points from the second subscene
     subscene <- rgl::subsceneList()[[2]]
     session$sendCustomMessage(
-      "deleteFromRglPlot", 
+      "deleteFromRglPlot",
       list(id = "rglPlot", objects = points_objects_dev2$items, subscene = subscene)
     )
     points_objects_dev2$clear()

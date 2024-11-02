@@ -112,19 +112,19 @@ NormalDistribution <- R6::R6Class(
       r <- private$params$sigma[1, 2]
       s <- s / (1 - r * 0.4)
       return(c(-3.5 * s, 3.5 * s))
-    }, 
+    },
     get_max_logp_at_boundary = function() {
       x_range <- self$get_range_x()
       y_range <- self$get_range_y()
       x_grid <- seq(x_range[1], x_range[2], length.out = 50)
       y_grid <- seq(y_range[1], y_range[2], length.out = 50)
       df_grid <- expand.grid(x = x_grid, y = y_grid)
-      
+
       x_border <- (df_grid$x == x_range[1]) | (df_grid$x == x_range[2])
       y_border <- (df_grid$y == y_range[1]) | (df_grid$y == y_range[2])
-      
+
       df_grid <- df_grid[x_border | y_border, ]
-      
+
       max_density <- max(self$density(df_grid))
       return(log(max_density))
     },
@@ -192,17 +192,17 @@ BananaDistribution <- R6::R6Class(
     },
     get_range_y = function() {
       return(c(-3, 3))
-    }, 
+    },
     get_max_logp_at_boundary = function() {
       x_range <- self$get_range_x()
       y_range <- self$get_range_y()
       x_grid <- seq(x_range[1], x_range[2], length.out = 50)
       y_grid <- seq(y_range[1], y_range[2], length.out = 50)
       df_grid <- expand.grid(x = x_grid, y = y_grid)
-      
+
       x_border <- (df_grid$x == x_range[1]) | (df_grid$x == x_range[2])
       y_border <- (df_grid$y == y_range[1]) | (df_grid$y == y_range[2])
-      
+
       df_grid <- df_grid[x_border | y_border, ]
       max_density <- max(self$density(df_grid))
       return(log(max_density))
@@ -251,10 +251,10 @@ FunnelDistribution <- R6::R6Class(
       result <- apply(
         x, 1, function(x) {
           funnel_logp(
-            x[1], 
-            x[2], 
-            private$params$m1, 
-            private$params$m2, 
+            x[1],
+            x[2],
+            private$params$m1,
+            private$params$m2,
             private$params$sigma
           )
         }
@@ -272,10 +272,10 @@ FunnelDistribution <- R6::R6Class(
       result <- apply(
         x, 1, function(x) {
           funnel_dlogp(
-            x[1], 
-            x[2], 
-            private$params$m1, 
-            private$params$m2, 
+            x[1],
+            x[2],
+            private$params$m1,
+            private$params$m2,
             private$params$sigma
           )
         }
@@ -287,7 +287,7 @@ FunnelDistribution <- R6::R6Class(
     },
     get_range_y = function() {
       return(c(-5.5, 4))
-    }, 
+    },
     get_max_logp_at_boundary = function() {
       return(-25)
     }
@@ -329,11 +329,11 @@ NormalMixture <- R6::R6Class(
       result <- apply(
         x, 1, function(x) {
           mixture_normal_logp(
-            x[1], 
-            x[2], 
-            private$params$mu1, 
-            private$params$tau1, 
-            private$params$mu2, 
+            x[1],
+            x[2],
+            private$params$mu1,
+            private$params$tau1,
+            private$params$mu2,
             private$params$tau2
           )
         }
@@ -351,11 +351,11 @@ NormalMixture <- R6::R6Class(
       result <- apply(
         x, 1, function(x) {
           mixture_normal_dlogp(
-            x[1], 
-            x[2], 
-            private$params$mu1, 
-            private$params$tau1, 
-            private$params$mu2, 
+            x[1],
+            x[2],
+            private$params$mu1,
+            private$params$tau1,
+            private$params$mu2,
             private$params$tau2
           )
         }
@@ -367,7 +367,7 @@ NormalMixture <- R6::R6Class(
     },
     get_range_y = function() {
       return(c(-4, 4))
-    }, 
+    },
     get_max_logp_at_boundary = function() {
       x_range <- self$get_range_x()
       y_range <- self$get_range_y()

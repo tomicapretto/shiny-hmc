@@ -83,7 +83,7 @@ input[type=range]:focus::-webkit-slider-runnable-track {
 .control-label {
   font-family: "Roboto Slab", sans-serif;
   font-size: 14px;
-  margin-bottom: 35px;
+  margin-bottom: 5px;
   margin-top: -7.5px;
   display: flex;
   gap: 5px;
@@ -99,13 +99,13 @@ input[type=range]:focus::-webkit-slider-runnable-track {
 /* Tooltip text */
 .control-label-tooltip .control-label-tooltip-content {
   visibility: hidden;
-  width: auto;
   background-color: #555;
   color: #fff;
   text-align: center;
   padding: 3px 6px;
   border-radius: 5px;
-  font-size: 11px;  
+  font-size: 12px;
+  width: 150px;
 
   /* Position the tooltip text */
   position: absolute;

@@ -28,13 +28,13 @@ control_label <- function(label, tooltip_label = NULL, tooltip_content = NULL) {
 select_input_options <- list(
   render = I("
     {
-      item: function(item, escape) { 
+      item: function(item, escape) {
               var html = katex.renderToString(item.label);
-              return '<div>' + html + '</div>'; 
+              return '<div>' + html + '</div>';
             },
-      option: function(item, escape) { 
+      option: function(item, escape) {
                 var html = katex.renderToString(item.label);
-                return '<div>' + html + '</div>'; 
+                return '<div>' + html + '</div>';
               }
     }"
   )
@@ -42,9 +42,9 @@ select_input_options <- list(
 
 choices <- c("normal_1", "normal_2", "normal_3", "normal_mixture", "banana", "funnel")
 choices_names <- c(
-  "\\mathcal{N}\\left(\\begin{bmatrix} 0 \\\\ 0 \\end{bmatrix}, \\begin{bmatrix} 1 & 0 \\\\ 0 & 1 \\end{bmatrix}\\right)", 
-  "\\mathcal{N}\\left(\\begin{bmatrix} 0 \\\\ 0 \\end{bmatrix}, \\begin{bmatrix} 1 & 0.3 \\\\ 0.3 & 1 \\end{bmatrix}\\right)", 
-  "\\mathcal{N}\\left(\\begin{bmatrix} 0 \\\\ 0 \\end{bmatrix}, \\begin{bmatrix} 1 & 0.7 \\\\ 0.7 & 1 \\end{bmatrix}\\right)", 
+  "\\mathcal{N}\\left(\\begin{bmatrix} 0 \\\\ 0 \\end{bmatrix}, \\begin{bmatrix} 1 & 0 \\\\ 0 & 1 \\end{bmatrix}\\right)",
+  "\\mathcal{N}\\left(\\begin{bmatrix} 0 \\\\ 0 \\end{bmatrix}, \\begin{bmatrix} 1 & 0.3 \\\\ 0.3 & 1 \\end{bmatrix}\\right)",
+  "\\mathcal{N}\\left(\\begin{bmatrix} 0 \\\\ 0 \\end{bmatrix}, \\begin{bmatrix} 1 & 0.7 \\\\ 0.7 & 1 \\end{bmatrix}\\right)",
   "\\frac{1}{2}\\mathcal{N}\\left(\\begin{bmatrix} -1.5 \\\\ -1.7 \\end{bmatrix}, 0.2 \\cdot \\boldsymbol{I}_2 \\right) + \\frac{1}{2}\\mathcal{N}\\left(\\begin{bmatrix} 0.9 \\\\ 0.5 \\end{bmatrix}, 1.25 \\cdot \\boldsymbol{I}_2 \\right)",
   "\\text{Rosenbrock's Banana}",
   "\\text{Neal's Funnel}"
@@ -56,68 +56,66 @@ make_sidebar <- function() {
     id = "sidebar",
     tags$div(
       class = "item",
-      ui_row(tags$p("Choose a distribution", class = "sidebar-group-header")),
-      ui_row(
-        ui_col(
-          width = 16,
-          shiny::selectizeInput("distribution", NULL, choices, options = select_input_options)
-        )
-      )
+      tags$p("Choose a distribution", class = "sidebar-group-header"),
+      shiny::selectizeInput("distribution", NULL, choices, options = select_input_options)
     ),
     tags$div(
       class = "item",
-      ui_row(tags$p("Controls", class = "sidebar-group-header")),
-      ui_row(
-        ui_col(
-          width = 16,
-          rangeInput("path_length", min = 0.1, max = 5, step = 0.1, value = 2),
-          control_label("Path length", shiny::icon("question-circle"), "For how long to integrate the trajectory (aka integration time)")
+      tags$p("Controls", class = "sidebar-group-header"),
+      tags$div(
+        style = "margin-bottom: 35px; margin-top: 45px",
+        rangeInput("path_length", min = 0.5, max = 5, step = 0.1, value = 2),
+        control_label(
+          "Path length",
+          shiny::icon("question-circle"),
+          "For how long to integrate the trajectory (aka integration time)"
         )
       ),
-      ui_row(
-        ui_col(
-          width = 16,
-          rangeInput("step_size", min = 0.01, max = 1, step = 0.01, value = 0.05),
-          control_label("Step size", shiny::icon("question-circle"), "Time length of the discretization steps"),
-        )
+      tags$div(
+        style = "margin-bottom: 35px",
+        rangeInput("step_size", min = 0.01, max = 0.5, step = 0.01, value = 0.05),
+        control_label(
+          "Step size",
+          shiny::icon("question-circle"),
+          "Time length of the discretization steps"
+        ),
       ),
-      ui_row(
-        ui_col(
-          width = 16,
+      tags$div(
           rangeInput("speed", step = 1, value = 3, labels = c("Slow", "Medium", "Fast")),
           tags$p("Animation speed", class = "range-input-label")
-        )
-      )
-    ),
-    tags$div(
-      class = "item",
-      style = "margin-top: -20px",
-      ui_row(tags$p("Actions", class = "sidebar-group-header")),
-      ui_row(
-        ui_col(
-          width = 16,
-          shinyWidgets::checkboxGroupButtons(
-            inputId = "keep_sampling", choices = "Sample", justified = TRUE
+      ),
+      tags$div(
+        shiny::checkboxInput("manual_momentum", "Set momentum manually", FALSE)
+      ),
+      tags$div(
+        style = "display: flex; gap: 5px",
+        shinyjs::disabled(
+          shiny::numericInput(
+            "momentum_x", label = "X", value = 0.5, min = -4, max = 4, step = 0.1
           )
-        )
+        ),
+        shinyjs::disabled(
+          shiny::numericInput(
+            "momentum_y", label = "Y", value = 0.5, min = -4, max = 4, step = 0.1
+          )
+        ),
       )
     ),
     tags$div(
-        class = "item",
-        ui_row(
-            ui_col(
-              width = 16,
-              shiny::actionButton("add_point", "Sample a single point", width = "100%")
-            )
-        )
-    ),
-    tags$div(
       class = "item",
-      ui_row(
-        ui_col(
-          width = 16,
-          shiny::actionButton("remove_points", "Remove points", width = "100%")
-        )
+      tags$p("Actions", class = "sidebar-group-header"),
+      tags$div(
+        style = "display: flex; gap: 5px; margin-top: 20px; margin-bottom: 15px;",
+        shiny::actionButton("start_sampling", "Start sampling", width = "100%"),
+        shiny::actionButton("stop_sampling", "Stop sampling", disabled = TRUE, width = "100%")
+      ),
+      tags$div(
+          style = "margin: 15px 0px;",
+          shiny::actionButton("add_point", "Sample a single point", width = "100%")
+      ),
+      tags$div(
+        style = "margin: 15px 0px;",
+        shiny::actionButton("remove_points", "Remove points", width = "100%")
       )
     )
   )
@@ -136,12 +134,12 @@ make_body <- function() {
       tags$div(htmltools::HTML(katex::katex_html(tex_panel_2, preview = FALSE))),
     ),
     tags$div(
+      style = "padding: 0px 10px",
       rgl::rglwidgetOutput("rglPlot", width = "100%")
     ),
     tags$div(
       style = "padding-left: 10px;",
       tags$h2("Details 🤓", class = "details-header"),
-
       tags$div(
         class = "accordion",
         accordionItem(
@@ -201,14 +199,14 @@ ui <- function() {
     tags$script(type = "text/javascript", src = "www/accordion.js"),
     tags$link(type="text/css", rel = "stylesheet", href = "www/styles.css"),
     tags$link(
-      rel = "stylesheet", 
-      href = "https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css", 
-      integrity = "sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH", 
+      rel = "stylesheet",
+      href = "https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css",
+      integrity = "sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH",
       crossorigin = "anonymous"
     ),
     tags$script(
-      src = "https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.js", 
-      integrity = "sha384-U8Vrjwb8fuHMt6ewaCy8uqeUXv4oitYACKdB0VziCerzt011iQ/0TqlSlv8MReCm", 
+      src = "https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.js",
+      integrity = "sha384-U8Vrjwb8fuHMt6ewaCy8uqeUXv4oitYACKdB0VziCerzt011iQ/0TqlSlv8MReCm",
       crossorigin = "anonymous"
     ),
   )
@@ -218,7 +216,7 @@ ui <- function() {
     make_sidebar(),
     make_body()
   )
-  
+
   ui <- do.call(htmltools::tagList, list(body, header))
   htmltools::attachDependencies(ui, shiny::bootstrapLib())
 }

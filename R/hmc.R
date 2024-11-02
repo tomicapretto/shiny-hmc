@@ -11,7 +11,7 @@ leapfrog <- function(p, q, neg_dlogp, path_length, step_size) {
   leap_q <- list()
   leap_p <- list()
   p <- p - step_size * neg_dlogp(q) / 2
-  
+
   for (i in seq_len(round(path_length / step_size) - 1)) {
     q <- q + step_size * p
     p <- p - step_size * neg_dlogp(q)
@@ -20,8 +20,8 @@ leapfrog <- function(p, q, neg_dlogp, path_length, step_size) {
   }
   q <- q + step_size * p
   p <- p - step_size * neg_dlogp(q) / 2
-  
-  # Flip del momentum 
+
+  # Flip del momentum
   return(list(q = q, p = -p, leap_q = leap_q, leap_p = leap_p))
 }
 
@@ -31,14 +31,14 @@ SamplerHMC <- R6::R6Class(
     neg_logp = NULL,
     neg_dlogp = NULL,
     initial_position = c(1.6, -0.6),
-    path_length = 1, 
+    path_length = 1,
     step_size = 0.01,
     generated_samples = list(),
     initialize = function(
-      neg_logp, 
-      neg_dlogp, 
-      initial_position = NULL, 
-      path_length = NULL, 
+      neg_logp,
+      neg_dlogp,
+      initial_position = NULL,
+      path_length = NULL,
       step_size = NULL
     ) {
       if (!is.null(initial_position)) {
@@ -56,25 +56,30 @@ SamplerHMC <- R6::R6Class(
         self$generated_samples, self$initial_position
       )
     },
-    
+
     set_path_length = function(x) {
       stopifnot(x > 0)
       self$path_length <- x
     },
-    
+
     set_step_size = function(x) {
       stopifnot(x > 0, x < self$path_length)
       self$step_size <- x
     },
-    
-    generate_sample = function() {
-      p_current <- self$generate_momentum()
+
+    generate_sample = function(momentum = NULL) {
+      if (is.null(momentum)) {
+        p_current <- self$generate_momentum()
+      } else {
+        p_current <- momentum
+      }
+
       q_current <- ltail(self$generated_samples)
-      
+
       integration <- leapfrog(
         p_current, q_current, self$neg_dlogp, self$path_length, self$step_size
       )
-      
+
       p_new <- integration$p
       q_new <- integration$q
       leap_p <- integration$leap_p
@@ -83,12 +88,12 @@ SamplerHMC <- R6::R6Class(
       # Metropolis acceptance criteria
       H_current <- self$neg_logp(q_current) - mvtnorm::dmvnorm(p_current, log = TRUE)
       H_new <- self$neg_logp(q_new) - mvtnorm::dmvnorm(p_new, log = TRUE)
-      
+
       u <- log(runif(1))
       accepted <- u < H_current - H_new
       sample <- if (isTRUE(accepted)) q_new else q_current
       self$generated_samples <- lappend(self$generated_samples, sample)
-      
+
       # Compare energies and determine if it's a divergence
       energy_difference <- abs(H_new - H_current)
       is_divergent <- energy_difference > 1000 # heuristic taken from PyMC
@@ -98,12 +103,12 @@ SamplerHMC <- R6::R6Class(
       # cat("u:", u, "\n")
       # cat("accepted:", accepted, "\n")
       # cat("Is divergent?", is_divergent, "\n")
-      # cat("-------------------------------\n")  
+      # cat("-------------------------------\n")
 
       return(
         list(
-          sample = matrix(sample, nrow = 1), 
-          leap_q = leap_q, 
+          sample = matrix(sample, nrow = 1),
+          leap_q = leap_q,
           momentum = matrix(p_current, nrow = 1),
           accepted = accepted,
           new_sample = q_new,
@@ -118,19 +123,20 @@ SamplerHMC <- R6::R6Class(
       n <- length(self$initial_position)
       mvtnorm::rmvnorm(1, rep(0, n), diag(n))
     },
-    
-    generate_xyz = function() {
+
+    generate_xyz = function(momentum = NULL) {
       initial_point <- ltail(self$generated_samples)
-      sample <- self$generate_sample()
+      sample <- self$generate_sample(momentum)
       xy <- do.call("rbind", sample$leap_q)
+
       # Prepend the initial point so trajectories don't have a gap
-      xy <- rbind(initial_point, xy) 
+      xy <- rbind(initial_point, xy)
       data <- cbind(xy, self$neg_logp(xy))
       data <- rbind(
         data,
         cbind(sample$sample, self$neg_logp(sample$sample))
       )
-      
+
       x <- data[, 1]
       y <- data[, 2]
       z <- data[, 3]

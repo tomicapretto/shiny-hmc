@@ -1,5 +1,5 @@
 # This file contains helper functions to work with rgl.
-# I wrote them by taking pieces out of existing functions in the rgl package. 
+# I wrote them by taking pieces out of existing functions in the rgl package.
 # These custom functions are faster than the functions in rgl because they are
 # specific for the type of objects we use in the application.
 
@@ -23,7 +23,7 @@ getObject <- function(id, type) {
   result$material <- material_diff(material)
 
   attribs <- c(
-    "vertices", "colors", "texcoords", "dim", "texts", "cex", "adj", "radii", 
+    "vertices", "colors", "texcoords", "dim", "texts", "cex", "adj", "radii",
     "ids", "usermatrix", "types", "offsets", "centers", "family", "font", "pos",
     "axes", "indices", "normals"
   )
@@ -40,15 +40,15 @@ getObject <- function(id, type) {
 
   # NOTE: The only flag we're using so far is "ignoreExtent"
   if (length(flags)) {
-    if ("ignoreExtent" %in% rownames(flags)) 
+    if ("ignoreExtent" %in% rownames(flags))
       result$ignoreExtent <- flags["ignoreExtent", 1]
     if ("fixedSize" %in% rownames(flags))
       result$fixedSize <- flags["fixedSize", 1]
-    if ("rotating" %in% rownames(flags)) 
+    if ("rotating" %in% rownames(flags))
       result$rotating <- flags["rotating", 1]
-    if ("fastTransparency" %in% rownames(flags)) 
+    if ("fastTransparency" %in% rownames(flags))
       result$fastTransparency <- flags["fastTransparency", 1]
-    if ("flipped" %in% rownames(flags)) 
+    if ("flipped" %in% rownames(flags))
       result$flipped <- flags["flipped", 1]
   }
 
@@ -68,7 +68,7 @@ makeList <- function(x) {
 }
 
 flagnames <- c(
-  "is_lit", "is_smooth", "has_texture", "depth_sort", "fixed_quads", 
+  "is_lit", "is_smooth", "has_texture", "depth_sort", "fixed_quads",
   "is_transparent", "is_lines", "sprites_3d", "is_subscene", "is_clipplanes",
   "fixed_size", "is_points", "is_twosided", "fat_lines", "is_brush", "has_fog",
   "rotating"
@@ -123,7 +123,7 @@ getFlags <- function(obj) {
   result["is_lines"]    <- type %in% c("lines", "linestrip", "abclines")
   result["is_points"]   <- type == "points" || "points" %in% c(mat$front, mat$back)
   result["is_twosided"] <- (
-      type %in% c("quads", "surface", "triangles", "spheres", "bboxdeco") && 
+      type %in% c("quads", "surface", "triangles", "spheres", "bboxdeco") &&
       length(unique(c(mat$front, mat$back))) > 1
   ) || (type == "background" && obj$sphere)
 
@@ -135,7 +135,7 @@ getFlags <- function(obj) {
   result["fixed_size"]  <- type == "text" || isTRUE(obj$fixedSize)
   result["rotating"] <- isTRUE(obj$rotating)
   result["fat_lines"] <- (
-    mat$lwd != 1 && 
+    mat$lwd != 1 &&
       (result["is_lines"] || "lines" %in% unlist(mat[c("front", "back")]))
   )
   result["is_brush"] <- FALSE

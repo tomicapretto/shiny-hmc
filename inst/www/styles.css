@@ -5,10 +5,9 @@
   background: hsl(210, 45%, 50%);
   color: white;
   max-width: 500px;
-  min-width: 200px;
+  min-width: 300px;
   overflow: hidden;
   padding: 10px;
-  padding: 25px;
   position: relative; /* For the resizable handle */
   width: 320px;
 }
@@ -30,8 +29,8 @@
 }
 
 .sidebar-group-header {
-  font-family: "Roboto Slab", sans-serif; 
-  font-size: 18px; 
+  font-family: "Roboto Slab", sans-serif;
+  font-size: 18px;
   font-weight: bold;
 }
 
@@ -53,7 +52,7 @@ body {
   font-family: "Roboto Slab", sans-serif;
   font-size: 28px;
 }
- 
+
 h3 {
   font-family: "Roboto Slab", sans-serif;
   font-size: 20px;
@@ -125,7 +124,7 @@ button {
   height: 100%;
   overflow: hidden; /* Ensure that overflow is hidden */
   position: relative; /* Establish positioning context */
-} 
+}
 
 canvas {
   border: 1px solid transparent;
