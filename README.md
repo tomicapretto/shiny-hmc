@@ -25,10 +25,8 @@ shinyhmc::run_app()
 
 and have fun!
 
-## Ideas
+## How it looks
 
-### Features
+[recording.webm](https://github.com/user-attachments/assets/ab71ed64-7747-4f64-99e6-09c0a81d3d8a)
 
-* Add content about each target distribution in the main container
 
-### Usage
